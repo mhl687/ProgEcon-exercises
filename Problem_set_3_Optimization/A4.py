@@ -13,7 +13,7 @@ p2 = 2
 
 eps = 1e-10
 
-def c2_of(x1):
+def x2_of(x1):
     return (I - p1*x1) / p2
 
 # closed-form optimum for a precision check
@@ -23,7 +23,7 @@ x1_star = I / (p1 + p2 * kappa)
 # objective along the budget line (penalize infeasible points)
 def obj(x, alpha, beta):
     x1 = float(x[0])
-    x2 = c2_of(x1)
+    x2 = x2_of(x1)
     if x1 <= 0 or x1 >= I/p1 or x2 <= 0:
         return 1e12
     return -utility_ces(x1, x2, alpha, beta)
@@ -37,7 +37,7 @@ res_slsqp = optimize.minimize(
     bounds=[(eps, I/p1 - eps)], method="SLSQP"
 )
 t1 = time.perf_counter()
-x1_s = float(res_slsqp.x[0]); x2_s = c2_of(x1_s)
+x1_s = float(res_slsqp.x[0]); x2_s = x2_of(x1_s)
 print(
     f"SLSQP       x1*={x1_s:.10f}  "
     f"u={utility_ces(x1_s, x2_s, alpha, beta):.10f}  "
@@ -49,7 +49,7 @@ print(
 t0 = time.perf_counter()
 res_nm = optimize.minimize(obj, x0=x0, args=(alpha, beta), method="Nelder-Mead")
 t1 = time.perf_counter()
-x1_n = float(res_nm.x[0]); x2_n = c2_of(x1_n)
+x1_n = float(res_nm.x[0]); x2_n = x2_of(x1_n)
 print(
     f"Nelder-Mead x1*={x1_n:.10f}  "
     f"u={utility_ces(x1_n, x2_n, alpha, beta):.10f}  "
